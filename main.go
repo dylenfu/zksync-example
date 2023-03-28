@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"math/big"
 	"os"
@@ -13,16 +14,20 @@ import (
 	zksync2 "github.com/zksync-sdk/zksync2-go"
 )
 
-var conf = new(Config)
+const (
+	mDeposit  = "deposit"
+	mTransfer = "transfer"
+	mWithdraw = "withdraw"
+)
 
-type Config struct {
-	AccountPk string `json:"account_pk"`
-	ZkUrl     string `json:"zk_url"`
-	EthUrl    string `json:"eth_url"`
-	ZkChainId int64  `json:"zk_chain_id"`
-}
+var (
+	conf   = new(Config)
+	method string
+)
 
-func initialize() {
+func init() {
+	flag.StringVar(&method, "m", "deposit", "methods to run, e.g: deposit, transfer, withdraw")
+
 	raw, err := os.ReadFile("config.json")
 	if err != nil {
 		panic(fmt.Sprintf("read config file failed, err: %v", err))
@@ -34,16 +39,28 @@ func initialize() {
 }
 
 func main() {
-	initialize()
-
 	instance, err := newInstance()
 	if err != nil {
 		panic(fmt.Sprintf("generate instance failed, err: %v", err))
 	}
 
-	//instance.Deposit()
-	//instance.Transfer()
-	instance.Withdrawal()
+	switch method {
+	case mDeposit:
+		instance.Deposit()
+	case mTransfer:
+		instance.Transfer()
+	case mWithdraw:
+		instance.Withdrawal()
+	default:
+		panic(fmt.Sprintf("unsupported method"))
+	}
+}
+
+type Config struct {
+	AccountPk string `json:"account_pk"`
+	ZkUrl     string `json:"zk_url"`
+	EthUrl    string `json:"eth_url"`
+	ZkChainId int64  `json:"zk_chain_id"`
 }
 
 type Instance struct {
