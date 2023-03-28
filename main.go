@@ -13,7 +13,7 @@ import (
 	zksync2 "github.com/zksync-sdk/zksync2-go"
 )
 
-var conf *Config
+var conf = new(Config)
 
 type Config struct {
 	AccountPk string `json:"account_pk"`
@@ -41,7 +41,9 @@ func main() {
 		panic(fmt.Sprintf("generate instance failed, err: %v", err))
 	}
 
-	instance.Transfer()
+	//instance.Deposit()
+	//instance.Transfer()
+	instance.Withdrawal()
 }
 
 type Instance struct {
@@ -96,6 +98,25 @@ func (ins *Instance) Transfer() {
 
 	balance2, _ := ins.wallet.GetBalanceOf(to, zksync2.CreateETH(), zksync2.BlockNumberCommitted)
 	fmt.Printf("before transfer amount %s, after transfer amount %s\r\n", balance1.String(), balance2.String())
+}
+
+func (ins *Instance) Withdrawal() {
+	split("withdrawal", "signer withdraw asset from l2 to l1")
+
+	receipt := ins.signer.GetAddress()
+	amount := big.NewInt(1000000000000)
+	balance1, _ := ins.wallet.GetBalanceOf(receipt, zksync2.CreateETH(), zksync2.BlockNumberCommitted)
+
+	hash, err := ins.wallet.Withdraw(receipt, amount, nil, nil)
+	if err != nil {
+		panic(fmt.Sprintf("withdrawal failed, err: %v", err))
+	} else {
+		fmt.Printf("withdrawal succeed %s\r\n", hash.Hex())
+	}
+
+	time.Sleep(5 * time.Second)
+	balance2, _ := ins.wallet.GetBalanceOf(receipt, zksync2.CreateETH(), zksync2.BlockNumberCommitted)
+	fmt.Printf("before withdraw amount %s, after withdraw amount %s\r\n", balance1.String(), balance2.String())
 }
 
 func newInstance() (ins *Instance, err error) {
