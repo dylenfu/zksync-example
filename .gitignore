@@ -1,3 +1,3 @@
 .idea
-config.json
+*.json
 zksync

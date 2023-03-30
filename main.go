@@ -21,15 +21,17 @@ const (
 )
 
 var (
-	conf   = new(Config)
-	method string
+	conf     = new(Config)
+	method   string
+	filepath string
 )
 
 func init() {
-	flag.StringVar(&method, "m", "deposit", "methods to run, e.g: deposit, transfer, withdraw")
+	flag.StringVar(&filepath, "config", "config.json", "read configuration")
+	flag.StringVar(&method, "method", "deposit", "methods to run, e.g: deposit, transfer, withdraw")
 	flag.Parse()
-	
-	raw, err := os.ReadFile("config.json")
+
+	raw, err := os.ReadFile(filepath)
 	if err != nil {
 		panic(fmt.Sprintf("read config file failed, err: %v", err))
 	}
