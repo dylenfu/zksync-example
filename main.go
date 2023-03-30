@@ -27,7 +27,8 @@ var (
 
 func init() {
 	flag.StringVar(&method, "m", "deposit", "methods to run, e.g: deposit, transfer, withdraw")
-
+	flag.Parse()
+	
 	raw, err := os.ReadFile("config.json")
 	if err != nil {
 		panic(fmt.Sprintf("read config file failed, err: %v", err))
